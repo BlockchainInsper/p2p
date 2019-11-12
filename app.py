@@ -10,6 +10,9 @@ app = Flask(__name__)
 
 
   
+nodes = []
+
+
 @app.route('/files', methods=['GET']) 
 def hello_world(): 
     path = "./files"
@@ -40,6 +43,35 @@ def recive_file():
         return jsonify({'status':'fail', 'data':'missing file'})
     file_uploaded.save("./files/" + file_uploaded.filename)
     return jsonify({'status':'success', 'data':{'filename': file_uploaded.filename}})
+
+
+
+
+@app.route('/discovery', methods=['POST']) 
+def new_node(): 
+    try:
+        action = request.args.get('action')
+        ip = request.remote_addr
+    except:
+        action = None
+        return jsonify({'status':'fail', 'data':'missing action'})
+    if (action == "add"):
+        if (ip not in nodes):
+            nodes.append(ip)
+        else:
+            jsonify({'status':'error', 'data':'already a node'})
+    else:
+        return jsonify({'status':'error', 'data':'unknown action'})
+
+@app.route('/discovery', methods=['GET'])
+def find_node():
+    return jsonify({'status':'error', 'data':[str(i) for i in nodes]})
+
+
+    
+
+
+    
 
 
   
