@@ -36,10 +36,10 @@ def recive_file():
     try:
         file_uploaded = request.files['file']
     except:
-        print("NAO")
         file_uploaded = None
+        return jsonify({'status':'fail', 'data':'missing file'})
     file_uploaded.save("./files/" + file_uploaded.filename)
-    return "OOOO"
+    return jsonify({'status':'success', 'data':{'filename': file_uploaded.filename}})
 
 
   
