@@ -1,5 +1,5 @@
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import hashlib
 from os import listdir
 from os.path import isfile, join
@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 
   
-@app.route('/files') 
+@app.route('/files', methods=['GET']) 
 def hello_world(): 
     path = "./files"
     onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
@@ -28,6 +28,18 @@ def hello_world():
                 sha256.update(data)
             resp.append({'name':current_file, 'hash':sha256.hexdigest()})
     return jsonify({'status':'success', 'data':resp})
+
+
+
+@app.route('/files', methods=['POST']) 
+def recive_file(): 
+    try:
+        file_uploaded = request.files['file']
+    except:
+        print("NAO")
+        file_uploaded = None
+    file_uploaded.save("./files/" + file_uploaded.filename)
+    return "OOOO"
 
 
   
