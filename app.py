@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request, send_file
 import hashlib
 from os import listdir
 from os.path import isfile, join
+import requests
 
 BUF_SIZE = 65536
 
@@ -11,6 +12,16 @@ app = Flask(__name__)
 
   
 nodes = []
+
+global hashes
+hashes = []
+
+
+
+def add_new_node(ip):
+    global nodes
+    if ip not in nodes and ip not in ["127.0.0.1", "0.0.0.0", "localhost"]:
+        nodes.append(ip)
 
 
 
@@ -24,7 +35,6 @@ hashes = []
 
 def calculate_all_files_hashes(path):
     global hashes
-
     onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
     resp = []
 
@@ -71,8 +81,14 @@ def get_file_by_hash(hash_number):
     else:
         return (hashes[index]['name'])
 
+
+
+
+
 @app.route('/files', methods=['GET']) 
-def hello_world(): 
+def hello_world():
+    ip = request.remote_addr
+    add_new_node(ip) 
     global hashes
     return jsonify({'status': 'success', 'data': hashes})
 
@@ -87,7 +103,7 @@ def receive_file(hash):
 
 
 
-@app.route('/files', methods=['POST']) 
+@app.route('/files', methods=['POST'])   
 def recive_file(): 
     global hashes
     try:
@@ -97,13 +113,17 @@ def recive_file():
         return jsonify({'status':'fail', 'data':'missing file'})
     file_uploaded.save("./files/" + file_uploaded.filename)
     hashes.append(calculate_file_hashe(file_uploaded.filename))
+    for i in nodes:
+        files = {'upload_file': open("./files/" + file_uploaded.filename,'rb')}
+        r = requests.post(i, files=files)
+
     return jsonify({'status':'success', 'data':{'filename': file_uploaded.filename}})
 
 
 
 
 @app.route('/discovery', methods=['POST']) 
-def new_node(): 
+def new_node(): #TODO get files when post
     try:
         action = request.args.get('action')
         ip = request.remote_addr
@@ -120,7 +140,10 @@ def new_node():
 
 @app.route('/discovery', methods=['GET'])
 def find_node():
-    return jsonify({'status':'error', 'data':[str(i) for i in nodes]})
+    ip = request.remote_addr
+    add_new_node(ip) 
+    print(ip)
+    return jsonify({'status':'success', 'data':[str(i) for i in nodes]})
 
 
     
@@ -132,6 +155,7 @@ def find_node():
   
 if __name__ == '__main__': 
     calculate_all_files_hashes("./files")
-    app.run() 
+    app.run(host = "0.0.0.0") 
+
 
 
