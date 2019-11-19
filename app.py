@@ -25,12 +25,8 @@ def add_new_node(ip):
 
 
 
-@app.route('/files', methods=['GET']) 
-def hello_world(): 
-    path = "./files"
 
-global hashes
-hashes = []
+
 
 
 def calculate_all_files_hashes(path):
@@ -86,7 +82,7 @@ def get_file_by_hash(hash_number):
 
 
 @app.route('/files', methods=['GET']) 
-def hello_world():
+def add_actual_node():
     ip = request.remote_addr
     add_new_node(ip) 
     global hashes
