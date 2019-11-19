@@ -12,12 +12,19 @@ app = Flask(__name__)
   
 nodes = []
 
+
+
+@app.route('/files', methods=['GET']) 
+def hello_world(): 
+    path = "./files"
+
 global hashes
 hashes = []
 
 
 def calculate_all_files_hashes(path):
     global hashes
+
     onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
     resp = []
 
