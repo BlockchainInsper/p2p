@@ -24,6 +24,15 @@ def add_new_node(ip):
         nodes.append(ip)
 
 
+
+@app.route('/files', methods=['GET']) 
+def hello_world(): 
+    path = "./files"
+
+global hashes
+hashes = []
+
+
 def calculate_all_files_hashes(path):
     global hashes
     onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
@@ -75,6 +84,7 @@ def get_file_by_hash(hash_number):
 
 
 
+
 @app.route('/files', methods=['GET']) 
 def hello_world():
     ip = request.remote_addr
@@ -93,13 +103,8 @@ def receive_file(hash):
 
 
 
-@app.route('/files', methods=['POST']) 
-def recive_file():
-    ip = request.remote_addr
-    add_new_node(ip)  
-
-    
-
+@app.route('/files', methods=['POST'])   
+def recive_file(): 
     global hashes
     try:
         file_uploaded = request.files['file']
@@ -151,5 +156,6 @@ def find_node():
 if __name__ == '__main__': 
     calculate_all_files_hashes("./files")
     app.run(host = "0.0.0.0") 
+
 
 
